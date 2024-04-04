@@ -1,1 +1,1 @@
-This folder is for wrangling our raw text data, which implies managing its intake(web crawling and scraping script), and clean up of said data, to be pushed back into our Data folder, under "CleanTxt". 
+This folder is for wrangling our raw text data, which implies managing its intake(web crawling and scraping script), and clean up of said data, to be pushed back into our Data folder, under "TidyTxt". 
