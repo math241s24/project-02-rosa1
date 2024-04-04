@@ -1,0 +1,1 @@
+This is the folder in which we will keep all of our data. For our text data, we will be keeping two folders. RawTxt will store our raw data intake, and TidyText will store the tidied version. "Datasets" will contain our supplemental datasets. 
