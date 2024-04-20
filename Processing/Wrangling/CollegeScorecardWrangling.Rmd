@@ -1,0 +1,179 @@
+---
+title: "CollegeScorecard Data Wrangling"
+output: pdf_document
+date: '2024-04-12'
+---
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyverse)
+
+setwd("/Users/ashwindev/Desktop/DataScience/project-02-rosa1/Processing/Wrangling")
+```
+
+
+```{r}
+Most_Recent_Cohorts_Institution <- read_csv("Most-Recent-Cohorts-Institution.csv")
+```
+
+```{r}
+head(Most_Recent_Cohorts_Institution)
+tail(Most_Recent_Cohorts_Institution)
+```
+
+API key:
+
+```{r}
+library(rscorecard)
+
+sc_key('hriAjENzUTJKzKt0zYxBvA6XfrWdHJwDum48RuoS')
+```
+
+```{r}
+sc_dict(filter_vars = TRUE)
+```
+
+```{r}
+data <- sc_init() %>%
+  sc_filter(preddeg == 3, control == 1) %>%  # Filter for predominantly bachelor’s degree institutions and public control
+  sc_select(UNITID, INSTNM, ADM_RATE, TUITIONFEE_IN, MEDIAN_HH_INC) %>%  # Selecting specific variables
+  sc_year(2020) %>%
+  sc_get()
+```
+
+
+```{r}
+data <- sc_init() %>%
+  sc_select(UNITID, INSTNM) %>%  # Just select institution ID and name to test
+  sc_year(2020) %>%
+  sc_get()
+
+# Check what the data looks like
+head(data)
+```
+
+
+Important variables: 
+
+
+ADM_RATE  
+UGDS (Enrollment of undergraduate certificate/degree-seeking students)
+UGDS_MEN
+UGDS_WOMEN    
+GRADS (# of graduate studnets)
+CCSIZSET (Carnegie Classification -- size and setting)
+
+
+
+UGDS_WHITE
+UGDS_BLACK
+UGDS_HISP
+UGDS_ASIAN
+UGDS_AIAN
+UGDS_NHPI
+UGDS_2MOR
+UGDS_NRA
+UGDS_UNKN
+UGDS_WHITENH
+UGDS_BLACKNH
+UGDS_API
+UGDS_AIANOLD
+UGDS_HISPOLD
+UG_NRA
+UG_UNKN
+UG_WHITENH
+UG_BLACKNH
+UG_API
+UG_AIANOLD
+UG_HISPOLD
+
+
+TUITIONFEE_IN (in-state tuit)
+TUITIONFEE_OUT (out of state tuit)
+PCTPELL (% students receiving pell)
+PCTFLOAN (% students receiving a student federal loan)
+GRAD_DEBT_MDN (The median debt for students who have completed)
+FAMINC (avg family income)
+MD_FAMINC (median family income)
+
+```{r}
+college <- Most_Recent_Cohorts_Institution %>%
+  select(
+    ADM_RATE,
+    UGDS,
+    UGDS_MEN,
+    UGDS_WOMEN,
+    GRADS,
+    CCSIZSET,
+    UGDS_WHITE,
+    UGDS_BLACK,
+    UGDS_HISP,
+    UGDS_ASIAN,
+    UGDS_AIAN,
+    UGDS_NHPI,
+    UGDS_2MOR,
+    UGDS_NRA,
+    UGDS_UNKN,
+    UGDS_WHITENH,
+    UGDS_BLACKNH,
+    UGDS_API,
+    UGDS_AIANOLD,
+    UGDS_HISPOLD,
+    UG_NRA,
+    UG_UNKN,
+    UG_WHITENH,
+    UG_BLACKNH,
+    UG_API,
+    UG_AIANOLD,
+    UG_HISPOLD,
+    TUITIONFEE_IN,
+    TUITIONFEE_OUT,
+    PCTPELL,
+    PCTFLOAN,
+    GRAD_DEBT_MDN,
+    FAMINC,
+    MD_FAMINC
+  )
+```
+
+EDA
+
+```{r}
+college %>% 
+  summarise(
+    Average_Tuition_In = mean(TUITIONFEE_IN, na.rm = TRUE),
+    Average_Tuition_Out = mean(TUITIONFEE_OUT, na.rm = TRUE),
+    Median_Family_Income = median(MD_FAMINC, na.rm = TRUE),
+    Average_Pct_Pell = mean(PCTPELL, na.rm = TRUE)
+  )
+```
+
+```{r}
+# Distribution of In-State Tuition Fees
+ggplot(college, aes(x = TUITIONFEE_IN)) +
+  geom_histogram(bins = 30, fill = "blue", alpha = 0.7)
+# Distribution of Median Family Income
+ggplot(college, aes(x = MD_FAMINC)) +
+  geom_histogram(bins = 30, fill = "green", alpha = 0.7) +
+  labs(title = "Distribution of Median Family Income", x = "Median Family Income", y = "Frequency")
+```
+
+```{r}
+college %>% 
+  mutate(Total_UGDS = UGDS_MEN + UGDS_WOMEN) %>%
+  ggplot(aes(x = factor(1), y = UGDS_MEN / Total_UGDS, fill = "Men")) +
+  geom_bar(stat = "identity") +
+  geom_bar(aes(y = UGDS_WOMEN / Total_UGDS, fill = "Women"), stat = "identity") +
+  scale_fill_manual(values = c("Men" = "blue", "Women" = "pink")) +
+  labs(x = "", y = "Percentage", title = "Gender Distribution in Undergraduate Enrollment") +
+  coord_polar(theta = "y")
+```
+
+```{r}
+# Checking correlations
+numeric_vars <- college %>% 
+  select(TUITIONFEE_IN, TUITIONFEE_OUT, MD_FAMINC, PCTPELL, PCTFLOAN)
+cor(na.omit(numeric_vars))
+```
+

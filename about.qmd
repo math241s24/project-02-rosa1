@@ -6,7 +6,6 @@ editor: visual
 
 This project was developed by Ashwin Dev, and Julian Jacklin for [MATH/STAT241](https://aallorant.github.io/math241s24/) at Reed College. The team is comprised of the following team members:
 
+-   
 
-- 
-
-- 
+-   

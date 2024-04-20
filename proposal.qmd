@@ -42,7 +42,6 @@ By retrieving students' opinions of their institution from online and predicativ
     -   Implement initial sentiment analysis using the NRC Emotion Lexicon and Bing Lexicon.
 
     -   Begin developing the text classification model to categorize opinions.
-
 -   Week 2 (April 14th-20th)
     -   Expand data collection to additional institutions if time and resources allow.
 
@@ -53,12 +52,10 @@ By retrieving students' opinions of their institution from online and predicativ
     -   Incorporate basic visualization of sentiment scores for Reed College.
 
     -   Incorporate feedback from peer review to identify areas for improvement.
-
 -   Week 3 (April 21st-27th)
     -   If possible, add additional institutions to the analysis for a comparative view.
 
     -   Finalize the presentation slides and ensure all data visualizations are polished.
-
 -   Post-Presentation (April 28th-May 9th)
     -   Begin drafting the final project write-up, detailing the methodology, analysis, findings, and reflections on the project process.
 
