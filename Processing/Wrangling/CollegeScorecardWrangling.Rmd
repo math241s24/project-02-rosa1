@@ -22,37 +22,6 @@ head(Most_Recent_Cohorts_Institution)
 tail(Most_Recent_Cohorts_Institution)
 ```
 
-API key:
-
-```{r}
-library(rscorecard)
-
-sc_key('hriAjENzUTJKzKt0zYxBvA6XfrWdHJwDum48RuoS')
-```
-
-```{r}
-sc_dict(filter_vars = TRUE)
-```
-
-```{r}
-data <- sc_init() %>%
-  sc_filter(preddeg == 3, control == 1) %>%  # Filter for predominantly bachelor’s degree institutions and public control
-  sc_select(UNITID, INSTNM, ADM_RATE, TUITIONFEE_IN, MEDIAN_HH_INC) %>%  # Selecting specific variables
-  sc_year(2020) %>%
-  sc_get()
-```
-
-
-```{r}
-data <- sc_init() %>%
-  sc_select(UNITID, INSTNM) %>%  # Just select institution ID and name to test
-  sc_year(2020) %>%
-  sc_get()
-
-# Check what the data looks like
-head(data)
-```
-
 
 Important variables: 
 
@@ -150,18 +119,48 @@ college %>%
 ```
 
 ```{r}
-# Distribution of In-State Tuition Fees
+# Ensure TUITIONFEE_IN is numeric
+college$TUITIONFEE_IN <- as.numeric(as.character(college$TUITIONFEE_IN))
+
+# Histogram for In-State Tuition Fees
 ggplot(college, aes(x = TUITIONFEE_IN)) +
   geom_histogram(bins = 30, fill = "blue", alpha = 0.7)
-# Distribution of Median Family Income
+
+# Ensure MD_FAMINC is numeric
+college$MD_FAMINC <- as.numeric(as.character(college$MD_FAMINC))
+
+# Histogram for Median Family Income
 ggplot(college, aes(x = MD_FAMINC)) +
   geom_histogram(bins = 30, fill = "green", alpha = 0.7) +
   labs(title = "Distribution of Median Family Income", x = "Median Family Income", y = "Frequency")
 ```
 
+
 ```{r}
-college %>% 
-  mutate(Total_UGDS = UGDS_MEN + UGDS_WOMEN) %>%
+library(dplyr)
+library(ggplot2)
+
+# Convert factors to numeric if necessary
+college <- college %>%
+  mutate(
+    UGDS_MEN = as.numeric(as.character(UGDS_MEN)),
+    UGDS_WOMEN = as.numeric(as.character(UGDS_WOMEN))
+  )
+
+# Handle missing values if necessary, for example, replacing NA with 0
+# This step depends on the context and how you want to treat missing values
+college <- college %>%
+  mutate(
+    UGDS_MEN = ifelse(is.na(UGDS_MEN), 0, UGDS_MEN),
+    UGDS_WOMEN = ifelse(is.na(UGDS_WOMEN), 0, UGDS_WOMEN)
+  )
+
+# Create Total_UGDS column
+college <- college %>%
+  mutate(Total_UGDS = UGDS_MEN + UGDS_WOMEN)
+
+# Create the plot
+college %>%
   ggplot(aes(x = factor(1), y = UGDS_MEN / Total_UGDS, fill = "Men")) +
   geom_bar(stat = "identity") +
   geom_bar(aes(y = UGDS_WOMEN / Total_UGDS, fill = "Women"), stat = "identity") +
@@ -171,9 +170,142 @@ college %>%
 ```
 
 ```{r}
-# Checking correlations
+library(dplyr)
+
+# Convert necessary columns to numeric
+college <- college %>%
+  mutate(
+    TUITIONFEE_IN = as.numeric(as.character(TUITIONFEE_IN)),
+    TUITIONFEE_OUT = as.numeric(as.character(TUITIONFEE_OUT)),
+    MD_FAMINC = as.numeric(as.character(MD_FAMINC)),
+    PCTPELL = as.numeric(as.character(PCTPELL)),
+    PCTFLOAN = as.numeric(as.character(PCTFLOAN))
+  )
+
+# Selecting numeric variables
 numeric_vars <- college %>% 
   select(TUITIONFEE_IN, TUITIONFEE_OUT, MD_FAMINC, PCTPELL, PCTFLOAN)
-cor(na.omit(numeric_vars))
+
+# Compute the correlation matrix with omitted NA values
+correlation_matrix <- cor(na.omit(numeric_vars))
+print(correlation_matrix)
 ```
+
+SHINY APP:
+
+```{r}
+library(shiny)
+library(shinydashboard)
+library(ggplot2)
+library(dplyr)
+
+# Load the data
+data <- read_csv("Most-Recent-Cohorts-Institution.csv") %>%
+  mutate(
+    TUITIONFEE_IN = as.numeric(as.character(TUITIONFEE_IN)),
+    TUITIONFEE_OUT = as.numeric(as.character(TUITIONFEE_OUT)),
+    INSTNM = as.character(INSTNM)  # Ensure institution names are character type
+  )
+
+# Calculate the average in-state and out-of-state tuition across all institutions
+average_tuition <- data %>%
+  summarise(
+    Average_Tuition_In = mean(TUITIONFEE_IN, na.rm = TRUE),
+    Average_Tuition_Out = mean(TUITIONFEE_OUT, na.rm = TRUE)
+  )
+
+# Define UI
+ui <- dashboardPage(
+  dashboardHeader(title = "Tuition Data Viewer"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Tuition Info", tabName = "tuition", icon = icon("dollar-sign"))
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      tabItem(tabName = "tuition",
+        fluidRow(
+          # Drop-down to select institution
+          box(
+            title = "Select Institution",
+            selectInput(
+              inputId = "institution",
+              label = "Choose an Institution:",
+              choices = unique(data$INSTNM),  # List of institution names
+              selected = unique(data$INSTNM)[1]  # Default selection
+            )
+          )
+        ),
+        fluidRow(
+          # Display tuition information for selected institution
+          box(
+            title = "Tuition Details",
+            verbatimTextOutput("tuitionDetails")
+          ),
+          # Bar chart to compare in-state and out-of-state tuition
+          box(
+            title = "Tuition Comparison",
+            plotOutput("tuitionComparisonPlot")
+          )
+        )
+      )
+    )
+  )
+)
+
+# Define server logic
+server <- function(input, output) {
+  # Render tuition details for the selected institution
+  output$tuitionDetails <- renderText({
+    selected_institution <- input$institution
+    
+    # Find tuition information for the selected institution
+    tuition_info <- data %>%
+      filter(INSTNM == selected_institution) %>%
+      select(INSTNM, TUITIONFEE_IN, TUITIONFEE_OUT) %>%
+      slice(1)  # Ensure only one row is selected
+    
+    # Create a text output summarizing tuition details
+    paste(
+      "Institution: ", tuition_info$INSTNM, "\n",
+      "In-State Tuition: $", tuition_info$TUITIONFEE_IN, "\n",
+      "Out-of-State Tuition: $", tuition_info$TUITIONFEE_OUT
+    )
+  })
+  
+  # Render bar plot to compare selected institution with the average tuition
+  output$tuitionComparisonPlot <- renderPlot({
+    selected_institution <- input$institution
+    
+    # Get tuition data for the selected institution
+    tuition_info <- data %>%
+      filter(INSTNM == selected_institution) %>%
+      select(TUITIONFEE_IN, TUITIONFEE_OUT) %>%
+      slice(1)
+    
+    # Data for bar plot comparison
+    tuition_df <- data.frame(
+      TuitionType = c("Selected Institution - In-State", "Selected Institution - Out-of-State", 
+                      "Average - In-State", "Average - Out-of-State"),
+      TuitionValue = c(tuition_info$TUITIONFEE_IN, tuition_info$TUITIONFEE_OUT,
+                       average_tuition$Average_Tuition_In, average_tuition$Average_Tuition_Out)
+    )
+    
+    ggplot(tuition_df, aes(x = TuitionType, y = TuitionValue, fill = TuitionType)) +
+      geom_bar(stat = "identity", alpha = 0.7) +
+      labs(
+        title = paste("Tuition Comparison for", selected_institution),
+        x = "Tuition Type",
+        y = "Tuition Fee ($)"
+      ) +
+      theme_minimal() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotated text for readability
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)
+```
+
 
