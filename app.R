@@ -8,6 +8,8 @@ library(readr)
 
 
 REED_TIDY<- read_csv("Data/TidyText/REED_TIDY.csv")
+UCF_TIDY<- read_csv("Data/TidyText/UCF_TIDY.csv")
+OHIO_TIDY<- read_csv("Data/TidyText/OHIO_TIDY.csv")
 
 data <-read_csv("Data/Datasets/Most-Recent-Cohorts-Institution.csv") %>%
   mutate(
@@ -61,6 +63,7 @@ ui <- dashboardPage(
               )
       ),
       
+      #################COLLEGE SCORE TAB
       tabItem(tabName = "score",
               
               tags$style(HTML(".irs-value,.irs-single,.irs-max,.irs-min {opacity: 0;}.text-container {
@@ -71,6 +74,16 @@ ui <- dashboardPage(
   .irs-bar {background: #52BE80}
   ")),
               
+              box(
+                title = "Select Institution",
+                selectInput(
+                  inputId = "college",
+                  label = "Choose an Institution:",
+                  choices = c("Reed College","University of Central Florida","Ohio State University"),  
+                  selected = "Reed College"  
+                )
+              ),
+              ###############PREFERENCE SLIDERS
               fluidRow(
                 box(
                   title = "How much do the following matter to you",collapsible = TRUE,collapsed=TRUE, width=6,
@@ -194,6 +207,7 @@ ui <- dashboardPage(
                   )
                   
                 ),
+                ######################## SCORE PANEL
                 box(
                   title = "Your College Score",
                   p(strong("\nComposite Score:")),
@@ -272,12 +286,28 @@ server <- function(input, output) {
     
   })
   
+
+collegechoice<-reactive({
+  if(input$college=="Reed College"){
+    collegedf<-REED_TIDY
+  }
+  if(input$college=="University of Central Florida"){
+    collegedf<-UCF_TIDY
+  }
+  if(input$college=="Ohio State University"){
+    collegedf<-OHIO_TIDY
+  }
+   
+
   
   
-  scoreGroup<- REED_TIDY%>%
+  
+  scoreGroup<- collegedf%>%
     mutate(SentimentSC = ifelse(Sentiment=="Negative", -SentimentSC, SentimentSC))%>%
     group_by(Label)%>%
     summarize(score = mean(SentimentSC))
+  
+return(scoreGroup)})
   
   format_value <- function(value) {
     if (value < 0 && value>=-100) {
@@ -368,7 +398,7 @@ server <- function(input, output) {
      
     }
     
-    scoreComp<-weightedAverage(scoreGroup$score)
+    scoreComp<-weightedAverage(collegechoice()$score)
     
     
     
@@ -381,7 +411,7 @@ server <- function(input, output) {
     
    
     
-    div<-format_value(indvScoreFix(scoreGroup$score[3]))
+    div<-format_value(indvScoreFix(collegechoice()$score[3]))
     div
   })
   
@@ -390,7 +420,7 @@ server <- function(input, output) {
    
     
     
-    fin<-format_value(indvScoreFix(scoreGroup$score[4]))
+    fin<-format_value(indvScoreFix(collegechoice()$score[4]))
     fin
   })
   
@@ -399,7 +429,7 @@ server <- function(input, output) {
    
     
     
-    fd<-format_value(indvScoreFix(scoreGroup$score[5]))
+    fd<-format_value(indvScoreFix(collegechoice()$score[5]))
     fd
   })
   
@@ -407,14 +437,14 @@ server <- function(input, output) {
     
     
     
-    cor<-format_value(indvScoreFix(scoreGroup$score[2]))
+    cor<-format_value(indvScoreFix(collegechoice()$score[2]))
     cor
   })
   
   comscr<- reactive({
     
    
-    com<-format_value(indvScoreFix(scoreGroup$score[1]))
+    com<-format_value(indvScoreFix(collegechoice()$score[1]))
     com
     
   })
@@ -423,7 +453,7 @@ server <- function(input, output) {
     
    
     
-    out<-format_value(indvScoreFix(scoreGroup$score[6]))
+    out<-format_value(indvScoreFix(collegechoice()$score[6]))
     out
     
   })
@@ -432,12 +462,12 @@ server <- function(input, output) {
     
    
     
-    prf<- format_value(indvScoreFix(scoreGroup$score[7]))
+    prf<- format_value(indvScoreFix(collegechoice()$score[7]))
     prf
     
   })
   
-  
+
   
   output$totalscore <- renderText({
     totscr()

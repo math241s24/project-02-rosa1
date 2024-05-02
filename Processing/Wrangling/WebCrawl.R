@@ -4,6 +4,10 @@ library(tidyverse)
 
 
 # REED CRAWL ########################################
+
+#Using Rcrawler() to navigate to Reed's Unigo page, particularly filtering the crawl by those pages on which there are
+#general reviews about the school.
+
 Rcrawler(Website = "https://www.unigo.com/colleges/reed-college",
          crawlUrlfilter = c("/describe-how-your-school-looks-to-someone-whos-never-seen-it",
                             "/describe-the-students-at-your-school",
@@ -16,6 +20,10 @@ Rcrawler(Website = "https://www.unigo.com/colleges/reed-college",
          ManyPerPattern = TRUE,
          RequestsDelay = 5,
          saveOnDisk = FALSE)
+
+#Rcrawler returns a 'DATA' object, which contains the text just scraped. The lines below do the preliminary cleaning, 
+#and write the dataframe into the repo for further cleaning.
+
 
 REED_UNIGO_RAW <- do.call("rbind", DATA) %>% data.frame %>% unnest(V2) %>% select(V2)%>% distinct()
 
