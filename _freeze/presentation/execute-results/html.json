@@ -1,12 +1,16 @@
 {
-  "hash": "db259544fb70801276df520cf81aea96",
+  "hash": "38da4cb6386d2068fd398059704cf8ba",
   "result": {
-    "markdown": "---\ntitle: \"Project title\"\nsubtitle: \"Project 2\"\nauthor: \"Team\"\ntitle-slide-attributes:\n  data-slide-number: none\nformat: revealjs\neditor: visual\nexecute:\n  echo: false\n---\n\n\n\n\n\n\n",
+    "markdown": "---\ntitle: \"Rosa\"\nsubtitle: \"A College Companion Tool Driven by Data\"\nauthor: \"Julian Jacklin & Ashwin Dev\"\ntitle-slide-attributes:\n  data-slide-number: none\nformat: revealjs\neditor: visual\nexecute:\n  echo: false\n---\n\n\n\n\n\n\n\n\n## Prelude<br><br>\n\nCollege admissions in the U.S. is becoming increasingly difficult to navigate; however, **applications are on the rise.**<br><br><br>\n\nStudents are left to embark on their own college searches, with varying levels of **guidance and support**\n\n## The Problem<br><br>\n\nCurrent College Search is\n\n-   Outdated (Reliance on prestige metrics)\n-   Unhelpful (Rankings)\n-   Insufficient (Limited Insights)\n\n![Image](~/Documents/GitHub/project-02-rosa1/nichelogo.png)\n![Image](~/Documents/GitHub/project-02-rosa1/nichelogo.png)\n\n## Pretty Code {auto-animate=\"true\"}\n\n-   Over 20 syntax highlighting themes available\n-   Default theme optimized for accessibility\n",
     "supporting": [],
     "filters": [
       "rmarkdown/pagebreak.lua"
     ],
-    "includes": {},
+    "includes": {
+      "include-after-body": [
+        "\n<script>\n  // htmlwidgets need to know to resize themselves when slides are shown/hidden.\n  // Fire the \"slideenter\" event (handled by htmlwidgets.js) when the current\n  // slide changes (different for each slide format).\n  (function () {\n    // dispatch for htmlwidgets\n    function fireSlideEnter() {\n      const event = window.document.createEvent(\"Event\");\n      event.initEvent(\"slideenter\", true, true);\n      window.document.dispatchEvent(event);\n    }\n\n    function fireSlideChanged(previousSlide, currentSlide) {\n      fireSlideEnter();\n\n      // dispatch for shiny\n      if (window.jQuery) {\n        if (previousSlide) {\n          window.jQuery(previousSlide).trigger(\"hidden\");\n        }\n        if (currentSlide) {\n          window.jQuery(currentSlide).trigger(\"shown\");\n        }\n      }\n    }\n\n    // hookup for slidy\n    if (window.w3c_slidy) {\n      window.w3c_slidy.add_observer(function (slide_num) {\n        // slide_num starts at position 1\n        fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);\n      });\n    }\n\n  })();\n</script>\n\n"
+      ]
+    },
     "engineDependencies": {},
     "preserve": {},
     "postProcess": true
