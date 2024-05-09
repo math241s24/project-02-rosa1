@@ -13,7 +13,7 @@ REED_TIDY<- read_csv("Data/TidyText/REED_TIDY.csv")
 UCF_TIDY<- read_csv("Data/TidyText/UCF_TIDY.csv")
 OHIO_TIDY<- read_csv("Data/TidyText/OHIO_TIDY.csv")
 
-data <-read_csv("Data/Datasets/Most-Recent-Cohorts-Institution.csv") %>%
+data <-read_csv("Data/Most-Recent-Cohorts-Institution.csv") %>%
   mutate(
     TUITIONFEE_IN = as.numeric(as.character(TUITIONFEE_IN)),
     TUITIONFEE_OUT = as.numeric(as.character(TUITIONFEE_OUT)),
@@ -32,7 +32,7 @@ ui <- dashboardPage(
   dashboardHeader(title = "Rosa 1.0"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Tuition Info", tabName = "tuition", icon = icon("dollar-sign")),
+      menuItem("Tuition Tool", tabName = "tuition", icon = icon("dollar-sign")),
       menuItem("College Score", tabName = "score", icon = icon("building-columns")),
       menuItem("Project Write-Up", tabName = "writeUp", icon = icon("pen-to-square"))
     )
@@ -256,8 +256,11 @@ ui <- dashboardPage(
                 linebreaks(1),
                 p(style="font-weight:bold;",  "Rosa is a college search multi-tool which aims to prepare applicants with honest, student-based college insights."),
                 linebreaks(1),
-                p("Through the 'Tuition Tracker', 
-                    you and your family are able to directly see how much particular institutions may cost...(FOR ASHWIN TO FINISH)"),
+                p("Through the 'Tuition Tracker', users can select a specific college and compare its individual in-state and out-of-state tuition fees to the national averages. 
+                By clearly highlighting how the institution's tuition rates measure up against the national average for both in-state and out-of-state students, the tool provides 
+                prospective students and their families with valuable insights into the relative affordability of different colleges. This comparison helps them better understand 
+                the financial implications of attending their desired school, empowering them to make more informed decisions in their college search process."),
+                
                 linebreaks(1),
                 p("Additionally, the 'College Score' tool enables applicants to discover not just the (ITALIC)best schools in the country, but their (BOLD ITALIC)best schools. A college is scored on seven main areas: The professors (how good is the in-class experience?), community (how are students interacting with each other?), courses (how are the course offerings?), diversity (how is diversity felt on campus?), 
                   financials (How is the cost of attendance? How are the financial outcomes?), outcomes (How are the student prospects?), or food (How's the food?). Each of these 
@@ -280,7 +283,13 @@ ui <- dashboardPage(
                 box(
                   title = strong("Our Data"),
                   
-                  p("(Ashwin begins by speaking about college scorecard)."),
+                  p("The College Scorecard, provided by the U.S. Department of Education, is a comprehensive dataset that offers detailed information about 
+                    post-secondary institutions across the country. It is designed to help prospective students and their families make informed decisions by providing 
+                    data on various metrics such as tuition costs, student demographics, financial aid, graduation rates, and post-graduation earnings. By encompassing 
+                    a broad range of institutions, from community colleges and vocational schools to major research universities and graduate programs, it allows users 
+                    to compare educational opportunities and outcomes across different types of schools. This dataset specifically includes information about students 
+                    who have received federal financial aid, offering crucial insights into the financial aspects of higher education for diverse student populations. 
+                    The dataset contains 6,543 observations and 3,232 variables"),
                   
                   linebreaks(1),
                   
@@ -389,7 +398,11 @@ ui <- dashboardPage(
                   
                   p("In future Rosa iterations, we hope to expand on both of our tools and potentially add more to focus on the areas of the college application process that applicants may need more guidance for—such as navigating campus life without actually being on campus or understanding how a particular department's program may hurt or bolster their post-undergrad plans."),
                   linebreaks(2),
-                  p("ASHWIN: to speak about next steps for tuition tool"),
+                  p("We see opportunities to expand the tuition tool's functionality to provide even more comprehensive support to prospective students and their families. First, 
+                    incorporating additional variables like average student loan debt, graduation rates, and post-graduation earnings would offer a more holistic perspective 
+                    on affordability and outcomes. Moreover, adding interactive filters for different demographic groups could tailor the results, making the tool more 
+                    personalized. I also envision integrating data on scholarships and financial aid opportunities specific to each college to help users identify potential 
+                    cost-saving options. With these improvements, the tool will better empower students to navigate the complexities of college financing and make well-informed decisions."),
                   linebreaks(2),
                   p("For the College Score Tool, we had hoped to aggregate a greater number of reviews with more robust metadata associated with each review, such as time of submission and the reviewer's affiliation with the school. Unigo.com was a sufficient source of reviews,
                     but Niche.com, a general-review site, would have been an optimal source. Niche.com has an overabundance of neatly formatted college reviews, along with the desired metadata; however, when we attempted to crawl/scrape the reviews for Reed College, our bot was immediately flagged as
